@@ -50,6 +50,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
     [3,1,4,2,5,6,2,2,5,6],
   ];
 
+  int turn = 0;
+  int score_a = 0;
+  int score_b = 0;
   int _start = 10;
   int _current = 10;
   int setagain = 0;
@@ -71,10 +74,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
       setState(() { _current = _start - duration.elapsed.inSeconds; });
     });
 
-    sub.onDone(() {
-      print("Done");
-      sub.cancel();
-    });
+    if(turn == 0 && _current <= 1) {
+      sub.onDone(() {
+        for (int i = 0; i < 10; i++) {
+          for (int j = 0; j < 10; j++) {
+            if (list[i][j] != -1) {
+              update(i, j);
+              return;
+            }
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -126,6 +137,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
     });
   }
 
+  void computermove()
+  {
+    update(bestScore_x, bestScore_y);
+  }
+
   int dfs(int i, int j, int color, List<dynamic> li)
   {
     if(li[i][j] == color)
@@ -166,16 +182,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
 
   update(int i, int j){
     List<dynamic> newlist = jsonDecode(jsonEncode(list));
-    int score = _score + dfs(i, j, newlist[i][j], newlist);
+    int a = score_a;
+    int b = score_b;
+    if(turn == 0) {
+      a = score_a + dfs(i, j, newlist[i][j], newlist);
+    }
+    else {
+      b = score_b + dfs(i, j, newlist[i][j], newlist);
+    }
     gravity(newlist);
 
     countDownTimer.cancel();
 
-    setState(() {
-      list = newlist;
-      setagain = 0;
-      _score = score;
-    });
+    if(setagain == 1) {
+      int updatedturn = 0;
+      if (turn == 0) {
+        updatedturn = 1;
+      }
+      else {
+        updatedturn = 0;
+      }
+
+      setState(() {
+        list = newlist;
+        setagain = 0;
+        score_a = a;
+        score_b = b;
+        turn = updatedturn;
+      });
+    }
   }
 
   List<int> CalculateDP(List<dynamic> li, bool maxi, int level, int lvlscore, int alpa, int beta) {
@@ -311,286 +346,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
   List<Widget> _createChildren() {
     List<Widget> colors = new List<Widget>();
 
-    if (setagain == 0) {
-      for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-          if (list[i][j] == -1) {
-            colors.add(
-              Container(color: Colors.white,),
-            );
-          }
-          else if (list[i][j] == 0) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.yellow[700],
-                        Colors.yellow[600],
-                        Colors.yellow[500],
-                        Colors.yellow[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 1) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.lightBlue[700],
-                        Colors.lightBlue[600],
-                        Colors.lightBlue[500],
-                        Colors.lightBlue[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 2) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.red[700],
-                        Colors.red[600],
-                        Colors.red[500],
-                        Colors.red[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 3) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.lightGreen[700],
-                        Colors.lightGreen[600],
-                        Colors.lightGreen[500],
-                        Colors.lightGreen[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 4) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.purple[700],
-                        Colors.purple[600],
-                        Colors.purple[500],
-                        Colors.purple[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 5) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.indigo[700],
-                        Colors.indigo[600],
-                        Colors.indigo[500],
-                        Colors.indigo[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 6) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.orange[700],
-                        Colors.orange[600],
-                        Colors.orange[500],
-                        Colors.orange[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 7) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.pink[700],
-                        Colors.pink[600],
-                        Colors.pink[500],
-                        Colors.pink[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 8) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.brown[700],
-                        Colors.brown[600],
-                        Colors.brown[500],
-                        Colors.brown[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 9) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.black87,
-                        Colors.black54,
-                        Colors.black45,
-                        Colors.black38,
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
-          }
-        }
-      }
-
-      _start = 10;
-      _current = 10;
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => startTimer());
-      setagain = 1;
-      runFutures();
-      _colors = colors;
-      return colors;
-    }
-    else if(showhint == 1){
-      for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-          if (list[i][j] == -1) {
-            colors.add(
-              Container(color: Colors.white,),
-            );
-          }
-          else if (list[i][j] == 0) {
-            if (i != bestScore_x || j != bestScore_y) {
+    if(turn == 0) {
+      if (setagain == 0) {
+        for (int i = 0; i < 10; i++) {
+          for (int j = 0; j < 10; j++) {
+            if (list[i][j] == -1) {
+              colors.add(
+                Container(color: Colors.white,),
+              );
+            }
+            else if (list[i][j] == 0) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -615,35 +380,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
                 ),
               ));
             }
-            else{
-              colors.add(GestureDetector(
-                onTap: () {
-                  update(i, j);
-                },
-                  child: FadeTransition(
-                    opacity: _animation,
-                    child: Container(decoration: ShapeDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.center,
-                        end: Alignment.topLeft,
-                        stops: [0.1, 0.5, 0.7, 0.9],
-                        colors: [
-                          Colors.yellow[700],
-                          Colors.yellow[600],
-                          Colors.yellow[500],
-                          Colors.yellow[400],
-                        ],
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                  ),
-                ),
-              )));
-            }
-          }
-          else if (list[i][j] == 1) {
-            if(i!=bestScore_x || j!=bestScore_y) {
+            else if (list[i][j] == 1) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -668,35 +405,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
                 ),
               ));
             }
-          else{
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Container(decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.lightBlue[700],
-                        Colors.lightBlue[600],
-                        Colors.lightBlue[500],
-                        Colors.lightBlue[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            )));
-          }
-          }
-          else if (list[i][j] == 2) {
-            if(i!=bestScore_x || j!=bestScore_y) {
+            else if (list[i][j] == 2) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -721,36 +430,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
                 ),
               ));
             }
-          else{
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Container(
-                    decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.red[700],
-                        Colors.red[600],
-                        Colors.red[500],
-                        Colors.red[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            )));
-          }
-          }
-          else if (list[i][j] == 3) {
-            if(i!=bestScore_x || j!=bestScore_y) {
+            else if (list[i][j] == 3) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -775,36 +455,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
                 ),
               ));
             }
-          else{
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Container(
-                    decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.lightGreen[700],
-                        Colors.lightGreen[600],
-                        Colors.lightGreen[500],
-                        Colors.lightGreen[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            )));
-          }
-          }
-          else if (list[i][j] == 4) {
-            if(i!=bestScore_x || j!=bestScore_y) {
+            else if (list[i][j] == 4) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -829,298 +480,1138 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Si
                 ),
               ));
             }
-          else{
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: FadeTransition(
-                opacity: _animation,
+            else if (list[i][j] == 5) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
                 child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.purple[700],
-                        Colors.purple[600],
-                        Colors.purple[500],
-                        Colors.purple[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.indigo[700],
+                          Colors.indigo[600],
+                          Colors.indigo[500],
+                          Colors.indigo[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
                 ),
-              ),
-            )));
-          }
-          }
-          else if (list[i][j] == 5) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.indigo[700],
-                        Colors.indigo[600],
-                        Colors.indigo[500],
-                        Colors.indigo[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
+              ));
+            }
+            else if (list[i][j] == 6) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.orange[700],
+                          Colors.orange[600],
+                          Colors.orange[500],
+                          Colors.orange[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
                 ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 6) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.orange[700],
-                        Colors.orange[600],
-                        Colors.orange[500],
-                        Colors.orange[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
+              ));
+            }
+            else if (list[i][j] == 7) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.pink[700],
+                          Colors.pink[600],
+                          Colors.pink[500],
+                          Colors.pink[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
                 ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 7) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.pink[700],
-                        Colors.pink[600],
-                        Colors.pink[500],
-                        Colors.pink[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
+              ));
+            }
+            else if (list[i][j] == 8) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.brown[700],
+                          Colors.brown[600],
+                          Colors.brown[500],
+                          Colors.brown[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
                 ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 8) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.brown[700],
-                        Colors.brown[600],
-                        Colors.brown[500],
-                        Colors.brown[400],
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
+              ));
+            }
+            else if (list[i][j] == 9) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.black87,
+                          Colors.black54,
+                          Colors.black45,
+                          Colors.black38,
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
                 ),
-              ),
-            ));
-          }
-          else if (list[i][j] == 9) {
-            colors.add(GestureDetector(
-              onTap: () {
-                update(i, j);
-              },
-              child: Container(
-                decoration: ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.center,
-                      end: Alignment.topLeft,
-                      stops: [0.1, 0.5, 0.7, 0.9],
-                      colors: [
-                        Colors.black87,
-                        Colors.black54,
-                        Colors.black45,
-                        Colors.black38,
-                      ],
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-              ),
-            ));
+              ));
+            }
           }
         }
-      }
 
-      showhint = 0;
-      _colors = colors;
-      return colors;
+        _start = 10;
+        _current = 10;
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => startTimer());
+        setagain = 1;
+        runFutures();
+        _colors = colors;
+        return colors;
+      }
+      else if (showhint == 1) {
+        for (int i = 0; i < 10; i++) {
+          for (int j = 0; j < 10; j++) {
+            if (list[i][j] == -1) {
+              colors.add(
+                Container(color: Colors.white,),
+              );
+            }
+            else if (list[i][j] == 0) {
+              if (i != bestScore_x || j != bestScore_y) {
+                colors.add(GestureDetector(
+                  onTap: () {
+                    update(i, j);
+                  },
+                  child: Container(
+                    decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.topLeft,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.yellow[700],
+                            Colors.yellow[600],
+                            Colors.yellow[500],
+                            Colors.yellow[400],
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ));
+              }
+              else {
+                colors.add(GestureDetector(
+                    onTap: () {
+                      update(i, j);
+                    },
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: Container(decoration: ShapeDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.center,
+                            end: Alignment.topLeft,
+                            stops: [0.1, 0.5, 0.7, 0.9],
+                            colors: [
+                              Colors.yellow[700],
+                              Colors.yellow[600],
+                              Colors.yellow[500],
+                              Colors.yellow[400],
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          )
+                      ),
+                      ),
+                    )));
+              }
+            }
+            else if (list[i][j] == 1) {
+              if (i != bestScore_x || j != bestScore_y) {
+                colors.add(GestureDetector(
+                  onTap: () {
+                    update(i, j);
+                  },
+                  child: Container(
+                    decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.topLeft,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.lightBlue[700],
+                            Colors.lightBlue[600],
+                            Colors.lightBlue[500],
+                            Colors.lightBlue[400],
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ));
+              }
+              else {
+                colors.add(GestureDetector(
+                    onTap: () {
+                      update(i, j);
+                    },
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: Container(decoration: ShapeDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.center,
+                            end: Alignment.topLeft,
+                            stops: [0.1, 0.5, 0.7, 0.9],
+                            colors: [
+                              Colors.lightBlue[700],
+                              Colors.lightBlue[600],
+                              Colors.lightBlue[500],
+                              Colors.lightBlue[400],
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          )
+                      ),
+                      ),
+                    )));
+              }
+            }
+            else if (list[i][j] == 2) {
+              if (i != bestScore_x || j != bestScore_y) {
+                colors.add(GestureDetector(
+                  onTap: () {
+                    update(i, j);
+                  },
+                  child: Container(
+                    decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.topLeft,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.red[700],
+                            Colors.red[600],
+                            Colors.red[500],
+                            Colors.red[400],
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ));
+              }
+              else {
+                colors.add(GestureDetector(
+                    onTap: () {
+                      update(i, j);
+                    },
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: Container(
+                        decoration: ShapeDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.topLeft,
+                              stops: [0.1, 0.5, 0.7, 0.9],
+                              colors: [
+                                Colors.red[700],
+                                Colors.red[600],
+                                Colors.red[500],
+                                Colors.red[400],
+                              ],
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                        ),
+                      ),
+                    )));
+              }
+            }
+            else if (list[i][j] == 3) {
+              if (i != bestScore_x || j != bestScore_y) {
+                colors.add(GestureDetector(
+                  onTap: () {
+                    update(i, j);
+                  },
+                  child: Container(
+                    decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.topLeft,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.lightGreen[700],
+                            Colors.lightGreen[600],
+                            Colors.lightGreen[500],
+                            Colors.lightGreen[400],
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ));
+              }
+              else {
+                colors.add(GestureDetector(
+                    onTap: () {
+                      update(i, j);
+                    },
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: Container(
+                        decoration: ShapeDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.topLeft,
+                              stops: [0.1, 0.5, 0.7, 0.9],
+                              colors: [
+                                Colors.lightGreen[700],
+                                Colors.lightGreen[600],
+                                Colors.lightGreen[500],
+                                Colors.lightGreen[400],
+                              ],
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                        ),
+                      ),
+                    )));
+              }
+            }
+            else if (list[i][j] == 4) {
+              if (i != bestScore_x || j != bestScore_y) {
+                colors.add(GestureDetector(
+                  onTap: () {
+                    update(i, j);
+                  },
+                  child: Container(
+                    decoration: ShapeDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.topLeft,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.purple[700],
+                            Colors.purple[600],
+                            Colors.purple[500],
+                            Colors.purple[400],
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ));
+              }
+              else {
+                colors.add(GestureDetector(
+                    onTap: () {
+                      update(i, j);
+                    },
+                    child: FadeTransition(
+                      opacity: _animation,
+                      child: Container(
+                        decoration: ShapeDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.topLeft,
+                              stops: [0.1, 0.5, 0.7, 0.9],
+                              colors: [
+                                Colors.purple[700],
+                                Colors.purple[600],
+                                Colors.purple[500],
+                                Colors.purple[400],
+                              ],
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                        ),
+                      ),
+                    )));
+              }
+            }
+            else if (list[i][j] == 5) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.indigo[700],
+                          Colors.indigo[600],
+                          Colors.indigo[500],
+                          Colors.indigo[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ),
+              ));
+            }
+            else if (list[i][j] == 6) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.orange[700],
+                          Colors.orange[600],
+                          Colors.orange[500],
+                          Colors.orange[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ),
+              ));
+            }
+            else if (list[i][j] == 7) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.pink[700],
+                          Colors.pink[600],
+                          Colors.pink[500],
+                          Colors.pink[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ),
+              ));
+            }
+            else if (list[i][j] == 8) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.brown[700],
+                          Colors.brown[600],
+                          Colors.brown[500],
+                          Colors.brown[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ),
+              ));
+            }
+            else if (list[i][j] == 9) {
+              colors.add(GestureDetector(
+                onTap: () {
+                  update(i, j);
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.black87,
+                          Colors.black54,
+                          Colors.black45,
+                          Colors.black38,
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ),
+              ));
+            }
+          }
+        }
+
+        showhint = 0;
+        _colors = colors;
+        return colors;
+      }
+      else {
+        return _colors;
+      }
     }
-    else {
-      return _colors;
+    else{
+      if (setagain == 0) {
+        for (int i = 0; i < 10; i++) {
+          for (int j = 0; j < 10; j++) {
+            if (list[i][j] == -1) {
+              colors.add(
+                Container(color: Colors.white,),
+              );
+            }
+            else if (list[i][j] == 0) {
+              colors.add(Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.yellow[700],
+                          Colors.yellow[600],
+                          Colors.yellow[500],
+                          Colors.yellow[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 1) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.lightBlue[700],
+                          Colors.lightBlue[600],
+                          Colors.lightBlue[500],
+                          Colors.lightBlue[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 2) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.red[700],
+                          Colors.red[600],
+                          Colors.red[500],
+                          Colors.red[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 3) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.lightGreen[700],
+                          Colors.lightGreen[600],
+                          Colors.lightGreen[500],
+                          Colors.lightGreen[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 4) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.purple[700],
+                          Colors.purple[600],
+                          Colors.purple[500],
+                          Colors.purple[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 5) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.indigo[700],
+                          Colors.indigo[600],
+                          Colors.indigo[500],
+                          Colors.indigo[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+                ));
+            }
+            else if (list[i][j] == 6) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.orange[700],
+                          Colors.orange[600],
+                          Colors.orange[500],
+                          Colors.orange[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+              ));
+            }
+            else if (list[i][j] == 7) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.pink[700],
+                          Colors.pink[600],
+                          Colors.pink[500],
+                          Colors.pink[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+              ));
+            }
+            else if (list[i][j] == 8) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.brown[700],
+                          Colors.brown[600],
+                          Colors.brown[500],
+                          Colors.brown[400],
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+              ));
+            }
+            else if (list[i][j] == 9) {
+              colors.add(
+                Container(
+                  decoration: ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.center,
+                        end: Alignment.topLeft,
+                        stops: [0.1, 0.5, 0.7, 0.9],
+                        colors: [
+                          Colors.black87,
+                          Colors.black54,
+                          Colors.black45,
+                          Colors.black38,
+                        ],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                  ),
+              ));
+            }
+          }
+        }
+
+        _start = 10;
+        _current = 10;
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => startTimer());
+        setagain = 1;
+        runFutures();
+        _colors = colors;
+        return colors;
+      }
+      else {
+        return _colors;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     var appBar = AppBar();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body:
-        Column(
-          children: <Widget>[
-            Expanded(
-              child: GridView.count(
-                primary: false,
-                padding: const EdgeInsets.all(20),
-                crossAxisCount: 10,
-                children: _createChildren(),
-              )
-              ),
-            Padding(
-              padding: const EdgeInsets.all(2),
-              child: IntrinsicHeight(
-                child: Row(
-                  children: <Widget>[
-                  Padding(
-                  padding: const EdgeInsets.only(left:20, top:2),
-                    child: Container(
-                      color: Colors.transparent,
-                      width: (MediaQuery.of(context).size.width)/2.4,
-                      height: 60,
-                      child: OutlineButton(
-                        onPressed: () {hintdfs();},
-                        borderSide: BorderSide(color: Colors.black),
-                        child: Text(
-                          "Hint",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Raleway',
-                            fontSize: 22.0,
-                            ),
-                          ),
-                        ),
-                      )
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top:2),
-                      child:Container(
-                      color: Colors.transparent,
-                      width: (MediaQuery.of(context).size.width)/2.4,
-                      height: 60,
-                      child: OutlineButton(
-                        onPressed: () {},
-                        borderSide: BorderSide(color: Colors.black),
-                        child: Text(
-                          "Pass",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Raleway',
-                            fontSize: 22.0,
-                          ),
-                        ),
-                      ),
+    if(turn == 0) {
+      return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+          ),
+          body:
+          Column(
+              children: <Widget>[
+                Expanded(
+                    child: GridView.count(
+                      primary: false,
+                      padding: const EdgeInsets.all(20),
+                      crossAxisCount: 10,
+                      children: _createChildren(),
                     )
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: IntrinsicHeight(
+                        child: Row(
+                            children: <Widget>[
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, top: 2),
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    width: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width) / 2.4,
+                                    height: 60,
+                                    child: OutlineButton(
+                                      onPressed: () {
+                                        hintdfs();
+                                      },
+                                      borderSide: BorderSide(color: Colors
+                                          .black),
+                                      child: Text(
+                                        "Hint",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Raleway',
+                                          fontSize: 22.0,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, top: 2),
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    width: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width) / 2.4,
+                                    height: 60,
+                                    child: OutlineButton(
+                                      onPressed: () {},
+                                      borderSide: BorderSide(color: Colors
+                                          .black),
+                                      child: Text(
+                                        "Pass",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Raleway',
+                                          fontSize: 22.0,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              )
+                            ]
+                        )
                     )
-                  ]
-                )
-              )
-            ),
-            Padding(
-                padding: const EdgeInsets.all(20),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: <Widget>[
-                      Container
-                      (
-                        child: Image(
-                          image: AssetImage('assets/images/undraw_male_avatar.png')
-                        ),
-                        height: (MediaQuery.of(context).size.height - appBar.preferredSize.height) / 4,
-                        width: (MediaQuery.of(context).size.width - appBar.preferredSize.height) / 2,
-                      ),
-                      Column(
-                        children: <Widget>[
-                          Container
-                            (
-                            padding: const EdgeInsets.all(4),
-                            child: Text(
-                              "Angad",
-                              style: TextStyle(
-                                fontSize: 30.0,
-                                color: Colors.blue,
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: IntrinsicHeight(
+                        child: Row(
+                            children: <Widget>[
+                              Container
+                                (
+                                child: Image(
+                                    image: AssetImage(
+                                        'assets/images/undraw_male_avatar.png')
+                                ),
+                                height: (MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height - appBar.preferredSize.height) / 4,
+                                width: (MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width - appBar.preferredSize.height) / 2,
                               ),
-                            ),
-                            height: (MediaQuery.of(context).size.height - appBar.preferredSize.height) / 12,
-                            width: (MediaQuery.of(context).size.width - appBar.preferredSize.height) / 2,
-                          ),
-                          Container
-                            (
-                            padding: const EdgeInsets.all(4),
-                            child: Text(
-                                "Score: 0",
-                              style: TextStyle(
-                                fontSize: 30.0,
-                              ),
-                            ),
-                            height: (MediaQuery.of(context).size.height - appBar.preferredSize.height) / 12,
-                            width: (MediaQuery.of(context).size.width - appBar.preferredSize.height) / 2,
-                          ),
-                          Container
-                            (
-                            padding: const EdgeInsets.all(4),
-                            child: Text(
-                              "Time Left: " + "$_current",
-                              style: TextStyle(
-                              fontSize: 30.0,
-                              color: Colors.red,
-                            ),),
-                            height: (MediaQuery.of(context).size.height - appBar.preferredSize.height) / 12,
-                            width: (MediaQuery.of(context).size.width - appBar.preferredSize.height) / 2,
-                          ),
-                        ]
-                      )
-                    ]
-                  )
+                              Column(
+                                  children: <Widget>[
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Angad",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Score: $score_a",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                        ),
+                                      ),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Time Left: " + "$_current",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                          color: Colors.red,
+                                        ),),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                  ]
+                              )
+                            ]
+                        )
+                    )
                 )
-            )
-          ]
-        )
+              ]
+          )
       );
+    }
+    else if (turn == 1){
+        if(setagain == 0) {
+          Timer(Duration(seconds: 3), () {
+            computermove();
+          });
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+          ),
+          body:
+          Column(
+              children: <Widget>[
+                Expanded(
+                    child: GridView.count(
+                      primary: false,
+                      padding: const EdgeInsets.all(20),
+                      crossAxisCount: 10,
+                      children: _createChildren(),
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: IntrinsicHeight(
+                        child: Row(
+                            children: <Widget>[
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, top: 2),
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    width: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width) / 2.4,
+                                    height: 60,
+                                    child: OutlineButton(
+                                      onPressed: () {
+                                        hintdfs();
+                                      },
+                                      borderSide: BorderSide(color: Colors
+                                          .black),
+                                      child: Text(
+                                        "Hint",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Raleway',
+                                          fontSize: 22.0,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 20, top: 2),
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    width: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width) / 2.4,
+                                    height: 60,
+                                    child: OutlineButton(
+                                      onPressed: () {},
+                                      borderSide: BorderSide(color: Colors
+                                          .black),
+                                      child: Text(
+                                        "Pass",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Raleway',
+                                          fontSize: 22.0,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              )
+                            ]
+                        )
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: IntrinsicHeight(
+                        child: Row(
+                            children: <Widget>[
+                              Container
+                                (
+                                child: Image(
+                                    image: AssetImage(
+                                        'assets/images/undraw_computer.png')
+                                ),
+                                height: (MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height - appBar.preferredSize.height) / 4,
+                                width: (MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width - appBar.preferredSize.height) / 2,
+                              ),
+                              Column(
+                                  children: <Widget>[
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Computer",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Score: $score_b",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                        ),
+                                      ),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                    Container
+                                      (
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        "Time Left: " + "$_current",
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                          color: Colors.red,
+                                        ),),
+                                      height: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .height -
+                                          appBar.preferredSize.height) / 12,
+                                      width: (MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width -
+                                          appBar.preferredSize.height) / 2,
+                                    ),
+                                  ]
+                              )
+                            ]
+                        )
+                    )
+                )
+              ]
+          )
+      );
+    }
   }
 }

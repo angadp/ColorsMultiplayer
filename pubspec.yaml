@@ -43,6 +43,7 @@ flutter:
   assets:
     - assets/images/undraw_female_avatar.png
     - assets/images/undraw_male_avatar.png
+    - assets/images/undraw_computer.png
 
   fonts:
    - family: IndieFlower
