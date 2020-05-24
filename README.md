@@ -1,8 +1,8 @@
 # colorsmultiplayer
 
-[Android App ARM64](build/app/outputs/apk/release/app-arm64-v8a-release.apk)
-[Android App ARMEBI](build/app/outputs/apk/release/app-armeabi-v7a-release.apk)
-[Android App x64_86](build/app/outputs/apk/release/app-x86_64-release.apk)
+[Android App ARM64](AndroidBuilds/app-arm64-v8a-release.apk)
+[Android App ARMEBI](AndroidBuilds/app-armeabi-v7a-release.apk)
+[Android App x64_86](AndroidBuilds/app-x86_64-release.apk)
 
 Multiplayer Version of Candy Crush
 
