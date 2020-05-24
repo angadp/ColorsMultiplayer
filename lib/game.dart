@@ -1487,7 +1487,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       if(score_a > score_b){
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.title),
+              title: Text(widget.name+ "'s Game"),
             ),
             body:
             Column(
@@ -1680,7 +1680,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       else{
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.title),
+              title: Text(widget.name+ "'s Game"),
             ),
             body:
             Column(
@@ -1783,7 +1783,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Angad",
+                                          widget.name,
                                           style: TextStyle(
                                             fontSize: 30.0,
                                             color: Colors.blue,
@@ -1874,7 +1874,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     if (turn == 0) {
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.title),
+              title: Text(widget.name+ "'s Game"),
             ),
             body:
             Column(
@@ -1977,7 +1977,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Angad",
+                                          widget.name,
                                           style: TextStyle(
                                             fontSize: 30.0,
                                             color: Colors.blue,
@@ -2052,7 +2052,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
         }
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.title),
+              title: Text(widget.name + "'s Game"),
             ),
             body:
             Column(
