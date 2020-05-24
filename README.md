@@ -1,16 +1,15 @@
 # colorsmultiplayer
 
-Multipplayer App
+Multiplayer Version of Candy Crush
 
-## Getting Started
+Choose New Game to get options
+![](Screenshots/Screenshot1.png)
 
-This project is a starting point for a Flutter application.
+Choose Game parameters
+![](Screenshots/Screenshot2.png)
 
-A few resources to get you started if this is your first Flutter project:
+To play, choose the color which will fetch you the most points. The one which has the most neigbouring same color.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Click Hint for hint and Pass to pass the turn
+![](Screenshots/Screenshot3.png)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
