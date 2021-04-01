@@ -23,24 +23,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class GamePage extends StatefulWidget {
-  int difficulty;
-  int colors;
-  String name;
+  int? difficulty;
+  int? colors;
+  String? name;
 
-  GamePage({Key key, this.title, this.difficulty, this.colors, this.name}) : super(key: key);
+  GamePage({Key? key, this.title, this.difficulty, this.colors, this.name}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation _animation;
+  late AnimationController _animationController;
+  late Animation _animation;
 
-  List<dynamic> list =
+  List<dynamic>? list =
   [
     [0,0,0,0,0,1,1,3,4,5],
     [3,1,4,2,5,6,2,2,5,6],
@@ -55,16 +56,15 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
   ];
 
   int turn = 0;
-  int score_a = 0;
-  int score_b = 0;
+  int scoreA = 0;
+  int scoreB = 0;
   int _start = 10;
   int _current = 10;
   int setagain = 0;
-  CountdownTimer countDownTimer;
-  int _score = 0;
+  late CountdownTimer countDownTimer;
   var _colors;
-  int bestScore_x = 0;
-  int bestScore_y = 0;
+  int? bestScoreX = 0;
+  int? bestScoreY = 0;
   int showhint = 0;
   bool gameOver = false;
 
@@ -93,6 +93,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       new Duration(seconds: 1),
     );
 
+    // ignore: cancel_subscriptions
     var sub = countDownTimer.listen(null);
     sub.onData((duration) {
       setState(() { _current = _start - duration.elapsed.inSeconds; });
@@ -102,7 +103,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       if(turn == 0 && _current <= 1) {
         for (int i = 0; i < 10; i++) {
           for (int j = 0; j < 10; j++) {
-            if (list[i][j] != -1) {
+            if (list![i][j] != -1) {
               update(i, j);
               return;
             }
@@ -116,20 +117,18 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
   void initState(){
     Random rand = new Random();
     int min = 0;
-    int max = widget.colors;
+    int? max = widget.colors;
     super.initState();
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat(reverse: true);
     _animation = Tween(begin:0.0, end:1.0).animate(_animationController);
 
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
 
-    print("Called this");
-
-    List<dynamic> newList = jsonDecode(jsonEncode(list));
+    List<dynamic>? newList = jsonDecode(jsonEncode(list));
     for (int i=0;i<10;i++) {
       for (int j=0;j<10;j++){
-        newList[i][j] = min + rand.nextInt(max - min);
+        newList![i][j] = min + rand.nextInt(max! - min);
       }
     }
 
@@ -143,7 +142,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
@@ -154,10 +153,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
 
 
   /* Hint Code */
-  int hintdfs()
+  void hintdfs()
   {
-    print(bestScore_x);
-    print(bestScore_y);
+    print(bestScoreX);
+    print(bestScoreY);
     setState(() {
       showhint = 1;
     });
@@ -166,10 +165,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
   /* Computer Move */
   void computermove()
   {
-    update(bestScore_x, bestScore_y);
+    update(bestScoreX, bestScoreY);
   }
 
-  int dfs(int i, int j, int color, List<dynamic> li)
+  int dfs(int i, int? j, int? color, List<dynamic> li)
   {
     if(li[i][j] == color)
     {
@@ -179,7 +178,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
         val += dfs(i-1, j, color, li);
       if(i+1<=9 && li[i+1][j]!=-1)
         val += dfs(i+1, j, color, li);
-      if(j-1>=0 && li[i][j-1]!=-1)
+      if(j!-1>=0 && li[i][j-1]!=-1)
         val += dfs(i, j-1, color, li);
       if(j+1<=9 && li[i][j+1]!=-1)
         val += dfs(i, j+1, color, li);
@@ -188,11 +187,11 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     return 0;
   }
 
-  void gravity(List<dynamic> li)
+  void gravity(List<dynamic>? li)
   {
     for(int i=9; i>=0; i--) {
       for(int j=9; j>=0; j--) {
-        if(li[i][j] == -1) {
+        if(li![i][j] == -1) {
           int k = i;
           while(k>=0) {
             if(li[k][j]!=-1) {
@@ -207,15 +206,15 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     }
   }
 
-  update(int i, int j){
-    List<dynamic> newlist = jsonDecode(jsonEncode(list));
-    int a = score_a;
-    int b = score_b;
+  update(int? i, int? j){
+    List<dynamic>? newlist = jsonDecode(jsonEncode(list));
+    int a = scoreA;
+    int b = scoreB;
     if(turn == 0) {
-      a = score_a + dfs(i, j, newlist[i][j], newlist);
+      a = scoreA + dfs(i!, j, newlist![i][j], newlist);
     }
     else {
-      b = score_b + dfs(i, j, newlist[i][j], newlist);
+      b = scoreB + dfs(i!, j, newlist![i][j], newlist);
     }
     gravity(newlist);
 
@@ -249,8 +248,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       setState(() {
         list = newlist;
         setagain = 0;
-        score_a = a;
-        score_b = b;
+        scoreA = a;
+        scoreB = b;
         turn = updatedturn;
         gameOver = over;
       });
@@ -258,19 +257,19 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
   }
 
   /* Minimax function */
-  List<int> CalculateDP(List<dynamic> li, bool maxi, int level, int lvlscore, int alpa, int beta) {
+  List<int?> calculateDP(List<dynamic>? li, bool maxi, int level, int lvlScore, int? alpha, int? beta) {
     if (level == 0) {
-      return [lvlscore, -1, -1];
+      return [lvlScore, -1, -1];
     }
     Map dic = new Map<int, List<List<int>>>();
-    List<dynamic> lvlarray = jsonDecode(jsonEncode(li));
+    List<dynamic>? lvlArray = jsonDecode(jsonEncode(li));
     for(int i=0; i<10; i++)
     {
       for (int j=0; j<10; j++)
       {
-        if(lvlarray[i][j]!=-1)
+        if(lvlArray![i][j]!=-1)
         {
-          int val = dfs(i, j, lvlarray[i][j] ,lvlarray);
+          int val = dfs(i, j, lvlArray[i][j] ,lvlArray);
           if(!dic.containsKey(val))
           {
             dic[val] = [[i, j]];
@@ -287,9 +286,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     {
       if(maxi)
       {
-        int v = -100000000;
-        int val_i = 0;
-        int val_j = 0;
+        int? v = -100000000;
+        int? valI = 0;
+        int? valJ = 0;
         List keys = dic.keys.toList();
         keys.sort((k1, k2) {
           if(k1 > k2)
@@ -302,35 +301,35 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
           for(var value in dic[key]){
             List<dynamic> temp = jsonDecode(jsonEncode(li));
             if(temp[value[0]][value[1]]!=-1) {
-              var ji = dfs(value[0], value[1], temp[value[0]][value[1]], temp);
+              dfs(value[0], value[1], temp[value[0]][value[1]], temp);
               gravity(temp);
-              var score_to_add = key * key;
-              var ret = CalculateDP(
-                  temp, !maxi, level - 1, (lvlscore + score_to_add), alpa,
+              var scoreToAdd = key * key;
+              var ret = calculateDP(
+                  temp, !maxi, level - 1, lvlScore + scoreToAdd as int, alpha,
                   beta);
-              if (v < ret[0]) {
+              if (v! < ret[0]!) {
                 v = ret[0];
-                val_i = value[0];
-                val_j = value[1];
+                valI = value[0];
+                valJ = value[1];
               }
-              if (v >= beta) {
-                return [v, val_i, val_j];
+              if (v! >= beta!) {
+                return [v, valI, valJ];
               }
-              if (alpa > v) {
-                alpa = alpa;
+              if (alpha! > v) {
+                alpha = alpha;
               }
               else {
-                alpa = v;
+                alpha = v;
               }
             }
           }
         }
-        return [v, val_i, val_j];
+        return [v, valI, valJ];
       }
       else {
-        int v = 100000000;
-        int val_i = 0;
-        int val_j = 0;
+        int? v = 100000000;
+        int? valI = 0;
+        int? valJ = 0;
         List keys = dic.keys.toList();
         keys.sort((k1, k2) {
           if (k1 < k2)
@@ -343,21 +342,21 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
           for (var value in dic[key]) {
             List<dynamic> temp = jsonDecode(jsonEncode(li));
             if (temp[value[0]][value[1]] != -1) {
-              var ji = dfs(value[0], value[1], temp[value[0]][value[1]], temp);
+              dfs(value[0], value[1], temp[value[0]][value[1]], temp);
               gravity(temp);
-              var score_to_add = key * key;
-              var ret = CalculateDP(
-                  temp, !maxi, level - 1, (lvlscore - score_to_add), alpa,
+              var scoreToAdd = key * key;
+              var ret = calculateDP(
+                  temp, !maxi, level - 1, lvlScore - scoreToAdd as int, alpha,
                   beta);
-              if (v > ret[0]) {
+              if (v! > ret[0]!) {
                 v = ret[0];
-                val_i = value[0];
-                val_j = value[1];
+                valI = value[0];
+                valJ = value[1];
               }
-              if (v <= alpa) {
-                return [v, val_i, val_j];
+              if (v! <= alpha!) {
+                return [v, valI, valJ];
               }
-              if (beta > v) {
+              if (beta! > v) {
                 beta = v;
               }
               else {
@@ -366,40 +365,40 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
             }
           }
         }
-        return [v, val_i, val_j];
+        return [v, valI, valJ];
       }
     }
     else {
-      return [lvlscore, -1, -1];
+      return [lvlScore, -1, -1];
     }
   }
 
   Future runFutures() async {
     var futures = <Future>[];
-    List<int> li = [];
+    List<int?> li = [];
     var thread = new Future(() async {
       await new Future.value();
-      List<dynamic> io = jsonDecode(jsonEncode(list));
-      li = CalculateDP(io, true, 3, 0, -100000000, 100000000);
+      List<dynamic>? io = jsonDecode(jsonEncode(list));
+      li = calculateDP(io, true, 3, 0, -100000000, 100000000);
     });
     futures.add(thread);
     await Future.wait(futures);
-    bestScore_x = li[1];
-    bestScore_y = li[2];
+    bestScoreX = li[1];
+    bestScoreY = li[2];
   }
 
-  List<Widget> _createChildren() {
-    List<Widget> colors = new List<Widget>();
+  List<Widget>? _createChildren() {
+    List<Widget> colors = <Widget>[];
     if(turn == 0) {
       if (setagain == 0) {
         for (int i = 0; i < 10; i++) {
           for (int j = 0; j < 10; j++) {
-            if (list[i][j] == -1) {
+            if (list![i][j] == -1) {
               colors.add(
                 Container(color: Colors.white,),
               );
             }
-            else if (list[i][j] == 0) {
+            else if (list![i][j] == 0) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -411,10 +410,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.yellow[700],
-                          Colors.yellow[600],
-                          Colors.yellow[500],
-                          Colors.yellow[400],
+                          Colors.yellow[700]!,
+                          Colors.yellow[600]!,
+                          Colors.yellow[500]!,
+                          Colors.yellow[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -424,7 +423,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 1) {
+            else if (list![i][j] == 1) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -436,10 +435,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.lightBlue[700],
-                          Colors.lightBlue[600],
-                          Colors.lightBlue[500],
-                          Colors.lightBlue[400],
+                          Colors.lightBlue[700]!,
+                          Colors.lightBlue[600]!,
+                          Colors.lightBlue[500]!,
+                          Colors.lightBlue[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -449,7 +448,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 2) {
+            else if (list![i][j] == 2) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -461,10 +460,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.red[700],
-                          Colors.red[600],
-                          Colors.red[500],
-                          Colors.red[400],
+                          Colors.red[700]!,
+                          Colors.red[600]!,
+                          Colors.red[500]!,
+                          Colors.red[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -474,7 +473,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 3) {
+            else if (list![i][j] == 3) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -486,10 +485,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.lightGreen[700],
-                          Colors.lightGreen[600],
-                          Colors.lightGreen[500],
-                          Colors.lightGreen[400],
+                          Colors.lightGreen[700]!,
+                          Colors.lightGreen[600]!,
+                          Colors.lightGreen[500]!,
+                          Colors.lightGreen[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -499,7 +498,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 4) {
+            else if (list![i][j] == 4) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -511,10 +510,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.purple[700],
-                          Colors.purple[600],
-                          Colors.purple[500],
-                          Colors.purple[400],
+                          Colors.purple[700]!,
+                          Colors.purple[600]!,
+                          Colors.purple[500]!,
+                          Colors.purple[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -524,7 +523,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 5) {
+            else if (list![i][j] == 5) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -536,10 +535,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.indigo[700],
-                          Colors.indigo[600],
-                          Colors.indigo[500],
-                          Colors.indigo[400],
+                          Colors.indigo[700]!,
+                          Colors.indigo[600]!,
+                          Colors.indigo[500]!,
+                          Colors.indigo[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -549,7 +548,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 6) {
+            else if (list![i][j] == 6) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -561,10 +560,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.orange[700],
-                          Colors.orange[600],
-                          Colors.orange[500],
-                          Colors.orange[400],
+                          Colors.orange[700]!,
+                          Colors.orange[600]!,
+                          Colors.orange[500]!,
+                          Colors.orange[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -574,7 +573,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 7) {
+            else if (list![i][j] == 7) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -586,10 +585,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.pink[700],
-                          Colors.pink[600],
-                          Colors.pink[500],
-                          Colors.pink[400],
+                          Colors.pink[700]!,
+                          Colors.pink[600]!,
+                          Colors.pink[500]!,
+                          Colors.pink[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -599,7 +598,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 8) {
+            else if (list![i][j] == 8) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -611,10 +610,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.brown[700],
-                          Colors.brown[600],
-                          Colors.brown[500],
-                          Colors.brown[400],
+                          Colors.brown[700]!,
+                          Colors.brown[600]!,
+                          Colors.brown[500]!,
+                          Colors.brown[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -624,7 +623,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                 ),
               ));
             }
-            else if (list[i][j] == 9) {
+            else if (list![i][j] == 9) {
               colors.add(GestureDetector(
                 onTap: () {
                   update(i, j);
@@ -654,7 +653,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
 
         _start = 10;
         _current = 10;
-        WidgetsBinding.instance
+        WidgetsBinding.instance!
             .addPostFrameCallback((_) => startTimer());
         setagain = 1;
         runFutures();
@@ -664,13 +663,13 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       else if (showhint == 1) {
         for (int i = 0; i < 10; i++) {
           for (int j = 0; j < 10; j++) {
-            if (list[i][j] == -1) {
+            if (list![i][j] == -1) {
               colors.add(
                 Container(color: Colors.white,),
               );
             }
-            else if (list[i][j] == 0) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 0) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -682,10 +681,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.yellow[700],
-                            Colors.yellow[600],
-                            Colors.yellow[500],
-                            Colors.yellow[400],
+                            Colors.yellow[700]!,
+                            Colors.yellow[600]!,
+                            Colors.yellow[500]!,
+                            Colors.yellow[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -701,17 +700,17 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(decoration: ShapeDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.center,
                             end: Alignment.topLeft,
                             stops: [0.1, 0.5, 0.7, 0.9],
                             colors: [
-                              Colors.yellow[700],
-                              Colors.yellow[600],
-                              Colors.yellow[500],
-                              Colors.yellow[400],
+                              Colors.yellow[700]!,
+                              Colors.yellow[600]!,
+                              Colors.yellow[500]!,
+                              Colors.yellow[400]!,
                             ],
                           ),
                           shape: RoundedRectangleBorder(
@@ -722,8 +721,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 1) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 1) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -735,10 +734,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.lightBlue[700],
-                            Colors.lightBlue[600],
-                            Colors.lightBlue[500],
-                            Colors.lightBlue[400],
+                            Colors.lightBlue[700]!,
+                            Colors.lightBlue[600]!,
+                            Colors.lightBlue[500]!,
+                            Colors.lightBlue[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -754,17 +753,17 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(decoration: ShapeDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.center,
                             end: Alignment.topLeft,
                             stops: [0.1, 0.5, 0.7, 0.9],
                             colors: [
-                              Colors.lightBlue[700],
-                              Colors.lightBlue[600],
-                              Colors.lightBlue[500],
-                              Colors.lightBlue[400],
+                              Colors.lightBlue[700]!,
+                              Colors.lightBlue[600]!,
+                              Colors.lightBlue[500]!,
+                              Colors.lightBlue[400]!,
                             ],
                           ),
                           shape: RoundedRectangleBorder(
@@ -775,8 +774,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 2) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 2) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -788,10 +787,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.red[700],
-                            Colors.red[600],
-                            Colors.red[500],
-                            Colors.red[400],
+                            Colors.red[700]!,
+                            Colors.red[600]!,
+                            Colors.red[500]!,
+                            Colors.red[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -807,7 +806,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -815,10 +814,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.red[700],
-                                Colors.red[600],
-                                Colors.red[500],
-                                Colors.red[400],
+                                Colors.red[700]!,
+                                Colors.red[600]!,
+                                Colors.red[500]!,
+                                Colors.red[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -829,8 +828,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 3) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 3) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -842,10 +841,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.lightGreen[700],
-                            Colors.lightGreen[600],
-                            Colors.lightGreen[500],
-                            Colors.lightGreen[400],
+                            Colors.lightGreen[700]!,
+                            Colors.lightGreen[600]!,
+                            Colors.lightGreen[500]!,
+                            Colors.lightGreen[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -861,7 +860,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -869,10 +868,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.lightGreen[700],
-                                Colors.lightGreen[600],
-                                Colors.lightGreen[500],
-                                Colors.lightGreen[400],
+                                Colors.lightGreen[700]!,
+                                Colors.lightGreen[600]!,
+                                Colors.lightGreen[500]!,
+                                Colors.lightGreen[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -883,8 +882,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 4) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 4) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -896,10 +895,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.purple[700],
-                            Colors.purple[600],
-                            Colors.purple[500],
-                            Colors.purple[400],
+                            Colors.purple[700]!,
+                            Colors.purple[600]!,
+                            Colors.purple[500]!,
+                            Colors.purple[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -915,7 +914,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -923,10 +922,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.purple[700],
-                                Colors.purple[600],
-                                Colors.purple[500],
-                                Colors.purple[400],
+                                Colors.purple[700]!,
+                                Colors.purple[600]!,
+                                Colors.purple[500]!,
+                                Colors.purple[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -937,8 +936,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 5) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 5) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -950,10 +949,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.indigo[700],
-                            Colors.indigo[600],
-                            Colors.indigo[500],
-                            Colors.indigo[400],
+                            Colors.indigo[700]!,
+                            Colors.indigo[600]!,
+                            Colors.indigo[500]!,
+                            Colors.indigo[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -969,7 +968,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         update(i, j);
                       },
                       child: FadeTransition(
-                        opacity: _animation,
+                        opacity: _animation as Animation<double>,
                         child: Container(
                           decoration: ShapeDecoration(
                               gradient: LinearGradient(
@@ -977,10 +976,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                 end: Alignment.topLeft,
                                 stops: [0.1, 0.5, 0.7, 0.9],
                                 colors: [
-                                  Colors.indigo[700],
-                                  Colors.indigo[600],
-                                  Colors.indigo[500],
-                                  Colors.indigo[400],
+                                  Colors.indigo[700]!,
+                                  Colors.indigo[600]!,
+                                  Colors.indigo[500]!,
+                                  Colors.indigo[400]!,
                                 ],
                               ),
                               shape: RoundedRectangleBorder(
@@ -991,8 +990,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       )));
               }
             }
-            else if (list[i][j] == 6) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 6) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -1004,10 +1003,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.orange[700],
-                            Colors.orange[600],
-                            Colors.orange[500],
-                            Colors.orange[400],
+                            Colors.orange[700]!,
+                            Colors.orange[600]!,
+                            Colors.orange[500]!,
+                            Colors.orange[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -1023,7 +1022,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -1031,10 +1030,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.orange[700],
-                                Colors.orange[600],
-                                Colors.orange[500],
-                                Colors.orange[400],
+                                Colors.orange[700]!,
+                                Colors.orange[600]!,
+                                Colors.orange[500]!,
+                                Colors.orange[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -1045,8 +1044,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 7) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 7) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -1058,10 +1057,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.pink[700],
-                            Colors.pink[600],
-                            Colors.pink[500],
-                            Colors.pink[400],
+                            Colors.pink[700]!,
+                            Colors.pink[600]!,
+                            Colors.pink[500]!,
+                            Colors.pink[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -1077,7 +1076,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -1085,10 +1084,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.pink[700],
-                                Colors.pink[600],
-                                Colors.pink[500],
-                                Colors.pink[400],
+                                Colors.pink[700]!,
+                                Colors.pink[600]!,
+                                Colors.pink[500]!,
+                                Colors.pink[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -1099,8 +1098,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 8) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 8) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -1112,10 +1111,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                           end: Alignment.topLeft,
                           stops: [0.1, 0.5, 0.7, 0.9],
                           colors: [
-                            Colors.brown[700],
-                            Colors.brown[600],
-                            Colors.brown[500],
-                            Colors.brown[400],
+                            Colors.brown[700]!,
+                            Colors.brown[600]!,
+                            Colors.brown[500]!,
+                            Colors.brown[400]!,
                           ],
                         ),
                         shape: RoundedRectangleBorder(
@@ -1131,7 +1130,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -1139,10 +1138,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                               end: Alignment.topLeft,
                               stops: [0.1, 0.5, 0.7, 0.9],
                               colors: [
-                                Colors.brown[700],
-                                Colors.brown[600],
-                                Colors.brown[500],
-                                Colors.brown[400],
+                                Colors.brown[700]!,
+                                Colors.brown[600]!,
+                                Colors.brown[500]!,
+                                Colors.brown[400]!,
                               ],
                             ),
                             shape: RoundedRectangleBorder(
@@ -1153,8 +1152,8 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                     )));
               }
             }
-            else if (list[i][j] == 9) {
-              if (i != bestScore_x || j != bestScore_y) {
+            else if (list![i][j] == 9) {
+              if (i != bestScoreX || j != bestScoreY) {
                 colors.add(GestureDetector(
                   onTap: () {
                     update(i, j);
@@ -1185,7 +1184,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       update(i, j);
                     },
                     child: FadeTransition(
-                      opacity: _animation,
+                      opacity: _animation as Animation<double>,
                       child: Container(
                         decoration: ShapeDecoration(
                             gradient: LinearGradient(
@@ -1222,12 +1221,12 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       if (setagain == 0) {
         for (int i = 0; i < 10; i++) {
           for (int j = 0; j < 10; j++) {
-            if (list[i][j] == -1) {
+            if (list![i][j] == -1) {
               colors.add(
                 Container(color: Colors.white,),
               );
             }
-            else if (list[i][j] == 0) {
+            else if (list![i][j] == 0) {
               colors.add(Container(
                   decoration: ShapeDecoration(
                       gradient: LinearGradient(
@@ -1235,10 +1234,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.yellow[700],
-                          Colors.yellow[600],
-                          Colors.yellow[500],
-                          Colors.yellow[400],
+                          Colors.yellow[700]!,
+                          Colors.yellow[600]!,
+                          Colors.yellow[500]!,
+                          Colors.yellow[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1247,7 +1246,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 1) {
+            else if (list![i][j] == 1) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1256,10 +1255,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.lightBlue[700],
-                          Colors.lightBlue[600],
-                          Colors.lightBlue[500],
-                          Colors.lightBlue[400],
+                          Colors.lightBlue[700]!,
+                          Colors.lightBlue[600]!,
+                          Colors.lightBlue[500]!,
+                          Colors.lightBlue[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1268,7 +1267,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 2) {
+            else if (list![i][j] == 2) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1277,10 +1276,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.red[700],
-                          Colors.red[600],
-                          Colors.red[500],
-                          Colors.red[400],
+                          Colors.red[700]!,
+                          Colors.red[600]!,
+                          Colors.red[500]!,
+                          Colors.red[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1289,7 +1288,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 3) {
+            else if (list![i][j] == 3) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1298,10 +1297,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.lightGreen[700],
-                          Colors.lightGreen[600],
-                          Colors.lightGreen[500],
-                          Colors.lightGreen[400],
+                          Colors.lightGreen[700]!,
+                          Colors.lightGreen[600]!,
+                          Colors.lightGreen[500]!,
+                          Colors.lightGreen[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1310,7 +1309,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 4) {
+            else if (list![i][j] == 4) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1319,10 +1318,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.purple[700],
-                          Colors.purple[600],
-                          Colors.purple[500],
-                          Colors.purple[400],
+                          Colors.purple[700]!,
+                          Colors.purple[600]!,
+                          Colors.purple[500]!,
+                          Colors.purple[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1331,7 +1330,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 5) {
+            else if (list![i][j] == 5) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1340,10 +1339,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.indigo[700],
-                          Colors.indigo[600],
-                          Colors.indigo[500],
-                          Colors.indigo[400],
+                          Colors.indigo[700]!,
+                          Colors.indigo[600]!,
+                          Colors.indigo[500]!,
+                          Colors.indigo[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1352,7 +1351,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
                 ));
             }
-            else if (list[i][j] == 6) {
+            else if (list![i][j] == 6) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1361,10 +1360,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.orange[700],
-                          Colors.orange[600],
-                          Colors.orange[500],
-                          Colors.orange[400],
+                          Colors.orange[700]!,
+                          Colors.orange[600]!,
+                          Colors.orange[500]!,
+                          Colors.orange[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1373,7 +1372,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
               ));
             }
-            else if (list[i][j] == 7) {
+            else if (list![i][j] == 7) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1382,10 +1381,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.pink[700],
-                          Colors.pink[600],
-                          Colors.pink[500],
-                          Colors.pink[400],
+                          Colors.pink[700]!,
+                          Colors.pink[600]!,
+                          Colors.pink[500]!,
+                          Colors.pink[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1394,7 +1393,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
               ));
             }
-            else if (list[i][j] == 8) {
+            else if (list![i][j] == 8) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1403,10 +1402,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                         end: Alignment.topLeft,
                         stops: [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          Colors.brown[700],
-                          Colors.brown[600],
-                          Colors.brown[500],
-                          Colors.brown[400],
+                          Colors.brown[700]!,
+                          Colors.brown[600]!,
+                          Colors.brown[500]!,
+                          Colors.brown[400]!,
                         ],
                       ),
                       shape: RoundedRectangleBorder(
@@ -1415,7 +1414,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   ),
               ));
             }
-            else if (list[i][j] == 9) {
+            else if (list![i][j] == 9) {
               colors.add(
                 Container(
                   decoration: ShapeDecoration(
@@ -1441,7 +1440,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
 
         _start = 10;
         _current = 10;
-        WidgetsBinding.instance
+        WidgetsBinding.instance!
             .addPostFrameCallback((_) => startTimer());
         setagain = 1;
         runFutures();
@@ -1461,9 +1460,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
         content: Column(
             children: <Widget>[
               Text(text),
-          FlatButton(
+              TextButton(
               onPressed: () {
-//                var route = new MaterialPageRoute(
+//                var route = new MaterialphageRoute(
 //                    builder: (BuildContext context){
 //                      return new MyHomePage();
 //                    });
@@ -1482,12 +1481,16 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
   @override
   Widget build(BuildContext context) {
     var appBar = AppBar();
+    var size = MediaQuery.of(context).size;
+
+    final double itemHeight = (size.height/1.8 - 24) / 10;
+    final double itemWidth = size.width / 10;
 
     if (gameOver == true) {
-      if(score_a > score_b){
+      if(scoreA > scoreB){
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.name+ "'s Game"),
+              title: Text(widget.name!+ "'s Game"),
             ),
             body:
             Column(
@@ -1495,9 +1498,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                   Expanded(
                       child: GridView.count(
                         primary: false,
+                        childAspectRatio: (itemWidth / itemHeight),
                         padding: const EdgeInsets.all(20),
                         crossAxisCount: 10,
-                        children: _createChildren(),
+                        children: _createChildren()!,
                       )
                   ),
                   Padding(
@@ -1515,12 +1519,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           hintdfs();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Hint",
                                           style: TextStyle(
@@ -1542,12 +1544,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           pass();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Pass",
                                           style: TextStyle(
@@ -1590,7 +1590,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          widget.name,
+                                          widget.name!,
                                           style: TextStyle(
                                             fontSize: 30.0,
                                             color: Colors.blue,
@@ -1611,7 +1611,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Score: $score_a",
+                                          "Score: $scoreA",
                                           style: TextStyle(
                                             fontSize: 30.0,
                                           ),
@@ -1658,7 +1658,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     content: Column(
     children: <Widget>[
     Text("You Won"),
-    FlatButton(
+      TextButton(
     onPressed: () {
                 var route = new MaterialPageRoute(
                     builder: (BuildContext context){
@@ -1680,7 +1680,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
       else{
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.name+ "'s Game"),
+              title: Text(widget.name!+ "'s Game"),
             ),
             body:
             Column(
@@ -1689,8 +1689,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       child: GridView.count(
                         primary: false,
                         padding: const EdgeInsets.all(20),
+                        childAspectRatio: (itemWidth / itemHeight),
                         crossAxisCount: 10,
-                        children: _createChildren(),
+                        children: _createChildren()!,
                       )
                   ),
                   Padding(
@@ -1708,12 +1709,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           hintdfs();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Hint",
                                           style: TextStyle(
@@ -1735,12 +1734,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           pass();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Pass",
                                           style: TextStyle(
@@ -1783,7 +1780,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          widget.name,
+                                          widget.name!,
                                           style: TextStyle(
                                             fontSize: 30.0,
                                             color: Colors.blue,
@@ -1804,7 +1801,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Score: $score_a",
+                                          "Score: $scoreA",
                                           style: TextStyle(
                                             fontSize: 30.0,
                                           ),
@@ -1851,7 +1848,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       content: Column(
                           children: <Widget>[
                             Text("You Lost"),
-                            FlatButton(
+                            TextButton(
                                 onPressed: () {
                                   var route = new MaterialPageRoute(
                                       builder: (BuildContext context){
@@ -1874,7 +1871,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
     if (turn == 0) {
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.name+ "'s Game"),
+              title: Text(widget.name!+ "'s Game"),
             ),
             body:
             Column(
@@ -1883,8 +1880,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       child: GridView.count(
                         primary: false,
                         padding: const EdgeInsets.all(20),
+                        childAspectRatio: (itemWidth / itemHeight),
                         crossAxisCount: 10,
-                        children: _createChildren(),
+                        children: _createChildren()!,
                       )
                   ),
                   Padding(
@@ -1902,12 +1900,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           hintdfs();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Hint",
                                           style: TextStyle(
@@ -1929,12 +1925,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           pass();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Pass",
                                           style: TextStyle(
@@ -1964,12 +1958,11 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                   height: (MediaQuery
                                       .of(context)
                                       .size
-                                      .height - appBar.preferredSize.height) /
-                                      4,
+                                      .height - appBar.preferredSize.height) / 8,
                                   width: (MediaQuery
                                       .of(context)
                                       .size
-                                      .width - appBar.preferredSize.height) / 2,
+                                      .width - appBar.preferredSize.height) / 4,
                                 ),
                                 Column(
                                     children: <Widget>[
@@ -1977,9 +1970,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          widget.name,
+                                          widget.name!,
                                           style: TextStyle(
-                                            fontSize: 30.0,
+                                            fontSize: 15.0,
                                             color: Colors.blue,
                                           ),
                                         ),
@@ -1987,59 +1980,120 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
                                       ),
                                       Container
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Score: $score_a",
+                                          "Score: $scoreA",
                                           style: TextStyle(
-                                            fontSize: 30.0,
+                                            fontSize: 15.0,
                                           ),
                                         ),
                                         height: (MediaQuery
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
+                                      ),
+
+                                    ]
+                                ),
+                                    Container
+                                    (
+                                    child: Image(
+                                    image: AssetImage(
+                                    'assets/images/undraw_computer.png')
+                                    ),
+                                    height: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .height - appBar.preferredSize.height) / 8,
+                                    width: (MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width - appBar.preferredSize.height) / 4,
+                                    ),
+                                Column(
+                                    children: <Widget>[
+                                      Container
+                                        (
+                                        padding: const EdgeInsets.all(4),
+                                        child: Text(
+                                          'Computer',
+                                          style: TextStyle(
+                                            fontSize: 15.0,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        height: (MediaQuery
+                                            .of(context)
+                                            .size
+                                            .height -
+                                            appBar.preferredSize.height) / 24,
+                                        width: (MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width -
+                                            appBar.preferredSize.height) / 4,
                                       ),
                                       Container
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Time Left: " + "$_current",
+                                          "Score: $scoreB",
                                           style: TextStyle(
-                                            fontSize: 30.0,
-                                            color: Colors.red,
-                                          ),),
+                                            fontSize: 15.0,
+                                          ),
+                                        ),
                                         height: (MediaQuery
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
                                       ),
+
                                     ]
-                                )
+                                ),
                               ]
                           )
                       )
-                  )
+                  ),Container
+                    (
+                    padding: const EdgeInsets.all(4),
+                    child: Text(
+                      "Time Left: " + "$_current",
+                      style: TextStyle(
+                        fontSize: 30.0,
+                        color: Colors.red,
+                      ),),
+                    height: (MediaQuery
+                        .of(context)
+                        .size
+                        .height -
+                        appBar.preferredSize.height) / 12,
+                    width: (MediaQuery
+                        .of(context)
+                        .size
+                        .width -
+                        appBar.preferredSize.height) / 2,
+                  ),
                 ]
             )
         );
@@ -2052,7 +2106,7 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
         }
         return Scaffold(
             appBar: AppBar(
-              title: Text(widget.name + "'s Game"),
+              title: Text(widget.name!+ "'s Game"),
             ),
             body:
             Column(
@@ -2061,8 +2115,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                       child: GridView.count(
                         primary: false,
                         padding: const EdgeInsets.all(20),
+                        childAspectRatio: (itemWidth / itemHeight),
                         crossAxisCount: 10,
-                        children: _createChildren(),
+                        children: _createChildren()!,
                       )
                   ),
                   Padding(
@@ -2080,12 +2135,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           hintdfs();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Hint",
                                           style: TextStyle(
@@ -2107,12 +2160,10 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                           .size
                                           .width) / 2.4,
                                       height: 60,
-                                      child: OutlineButton(
+                                      child: TextButton(
                                         onPressed: () {
                                           pass();
                                         },
-                                        borderSide: BorderSide(color: Colors
-                                            .black),
                                         child: Text(
                                           "Pass",
                                           style: TextStyle(
@@ -2142,12 +2193,11 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                   height: (MediaQuery
                                       .of(context)
                                       .size
-                                      .height - appBar.preferredSize.height) /
-                                      4,
+                                      .height - appBar.preferredSize.height) / 8,
                                   width: (MediaQuery
                                       .of(context)
                                       .size
-                                      .width - appBar.preferredSize.height) / 2,
+                                      .width - appBar.preferredSize.height) / 4,
                                 ),
                                 Column(
                                     children: <Widget>[
@@ -2155,9 +2205,9 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Computer",
+                                          'Computer',
                                           style: TextStyle(
-                                            fontSize: 30.0,
+                                            fontSize: 15.0,
                                             color: Colors.blue,
                                           ),
                                         ),
@@ -2165,62 +2215,124 @@ class _MyHomePageState extends State<GamePage> with WidgetsBindingObserver, Sing
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
                                       ),
                                       Container
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Score: $score_b",
+                                          "Score: $scoreB",
                                           style: TextStyle(
-                                            fontSize: 30.0,
+                                            fontSize: 15.0,
                                           ),
                                         ),
                                         height: (MediaQuery
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
+                                      ),
+
+                                    ]
+                                ),
+                                Container
+                                  (
+                                  child: Image(
+                                      image: AssetImage(
+                                          'assets/images/undraw_male_avatar.png')
+                                  ),
+                                  height: (MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height - appBar.preferredSize.height) / 8,
+                                  width: (MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width - appBar.preferredSize.height) / 4,
+                                ),
+                                Column(
+                                    children: <Widget>[
+                                      Container
+                                        (
+                                        padding: const EdgeInsets.all(4),
+                                        child: Text(
+                                          widget.name!,
+                                          style: TextStyle(
+                                            fontSize: 15.0,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        height: (MediaQuery
+                                            .of(context)
+                                            .size
+                                            .height -
+                                            appBar.preferredSize.height) / 24,
+                                        width: (MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width -
+                                            appBar.preferredSize.height) / 4,
                                       ),
                                       Container
                                         (
                                         padding: const EdgeInsets.all(4),
                                         child: Text(
-                                          "Time Left: " + "$_current",
+                                          "Score: $scoreA",
                                           style: TextStyle(
-                                            fontSize: 30.0,
-                                            color: Colors.red,
-                                          ),),
+                                            fontSize: 15.0,
+                                          ),
+                                        ),
                                         height: (MediaQuery
                                             .of(context)
                                             .size
                                             .height -
-                                            appBar.preferredSize.height) / 12,
+                                            appBar.preferredSize.height) / 24,
                                         width: (MediaQuery
                                             .of(context)
                                             .size
                                             .width -
-                                            appBar.preferredSize.height) / 2,
+                                            appBar.preferredSize.height) / 4,
                                       ),
+
                                     ]
-                                )
+                                ),
                               ]
                           )
                       )
-                  )
+                  ),Container
+                    (
+                    padding: const EdgeInsets.all(4),
+                    child: Text(
+                      "Time Left: " + "$_current",
+                      style: TextStyle(
+                        fontSize: 30.0,
+                        color: Colors.red,
+                      ),),
+                    height: (MediaQuery
+                        .of(context)
+                        .size
+                        .height -
+                        appBar.preferredSize.height) / 12,
+                    width: (MediaQuery
+                        .of(context)
+                        .size
+                        .width -
+                        appBar.preferredSize.height) / 2,
+                  ),
                 ]
             )
         );
       }
+      return Container();
   }
 }

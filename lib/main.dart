@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:getflutter/getflutter.dart';
 import 'game.dart';
 import 'dart:io';
 
@@ -23,21 +22,21 @@ class MyApp extends StatelessWidget {
 enum Difficulty { Easy, Medium, Hard }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin{
-  AnimationController _animationController;
-  Animation _animation;
-  Difficulty _diff = Difficulty.Easy;
-  int dropdownValue = 4;
+  late AnimationController _animationController;
+  late Animation _animation;
+  Difficulty? _diff = Difficulty.Easy;
+  int? dropdownValue = 4;
 
-  void onChanged(Difficulty value) {
+  void onChanged(Difficulty? value) {
     setState((){
       _diff = value;
     });
@@ -49,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   @override
   void initState(){
+    super.initState();
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat(reverse: true);
     _animation = Tween(begin:0.75, end:1.0).animate(_animationController);
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                  title: const Text('Easy'),
                  value: Difficulty.Easy,
                  groupValue: _diff,
-                 onChanged: (Difficulty value) {
+                 onChanged: (Difficulty? value) {
                    onChanged(value);
                  },
                ),
@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
              title: const Text('Medium'),
              value: Difficulty.Medium,
              groupValue: _diff,
-             onChanged: (Difficulty value) {
+             onChanged: (Difficulty? value) {
                onChanged(value);
              },
            ),
@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
              title: const Text('Hard'),
              value: Difficulty.Hard,
              groupValue: _diff,
-             onChanged: (Difficulty value) {
+             onChanged: (Difficulty? value) {
                onChanged(value);
              },
            ),
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       ),
                       child: DropdownButton<int>(
                       value: dropdownValue,
-                      onChanged: (int newValue) {
+                      onChanged: (int? newValue) {
                       setState(() {
                           dropdownValue = newValue;
                       });
@@ -126,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 decoration: new InputDecoration(
                     hintText: "Name"
                 )),
-           FlatButton(
+           TextButton(
              onPressed: () {
                String name = "John Doe";
                if(controller.text != ""){
@@ -134,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                }
                var route = new MaterialPageRoute(
                    builder: (BuildContext context){
-                      return new GamePage(title: _diff.toString(), difficulty: _diff.index, colors: dropdownValue, name: name);
+                      return new GamePage(title: _diff.toString(), difficulty: _diff!.index, colors: dropdownValue, name: name);
                    });
                Navigator.pop(context);
                Navigator.of(context).push(route);
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       Scaffold(
         backgroundColor: Colors.cyan,
           body: FadeTransition(
-          opacity: _animation,
+          opacity: _animation as Animation<double>,
           child: Scaffold(
           backgroundColor: Colors.blueAccent,
         body: Column(
@@ -170,12 +170,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               padding: const EdgeInsets.only(top:20),
               child: Column(
               children: <Widget>[
-                OutlineButton(
+                TextButton(
                 onPressed: () {
                   createNewGameDialog(context);
                 },
-                borderSide: BorderSide(color: Colors
-                    .black),
                   child: Padding(
                     padding: const EdgeInsets.only(left: 50, right: 50, top:20, bottom:20),
                     child:Text(
@@ -192,12 +190,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               padding: const EdgeInsets.only(top:20),
               child: Column(
                   children: <Widget>[
-                    OutlineButton(
+                    TextButton(
                       onPressed: () {
                         exit(0);
                       },
-                      borderSide: BorderSide(color: Colors
-                          .black),
                       child: Padding(
                           padding: const EdgeInsets.only(left: 85, right: 85, top:20, bottom:20),
                           child:Text(
