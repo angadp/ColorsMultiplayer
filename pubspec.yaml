@@ -14,7 +14,7 @@ description: Multipplayer App
 version: 1.0.0+1
 
 environment:
-  sdk: '2.12.3'
+  sdk: '2.14.0-368.0.dev'
 
 dependencies:
   quiver: ^3.0.0
