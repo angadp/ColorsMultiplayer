@@ -58,6 +58,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   @override
   void initState(){
     super.initState();
+    FirebaseAuth.instance
+    .authStateChanges()
+    .listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out!');
+        var route = new MaterialPageRoute(
+            builder: (BuildContext context){
+              return new MyAccount();
+            });
+        Navigator.pop(context);
+        Navigator.of(context).push(route);
+      } else {
+        print('User is signed in!');
+      }
+    });
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat(reverse: true);
     _animation = Tween(begin:0.75, end:1.0).animate(_animationController);
