@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'game.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'account.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -50,6 +58,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   @override
   void initState(){
     super.initState();
+    FirebaseAuth.instance
+    .authStateChanges()
+    .listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out!');
+        var route = new MaterialPageRoute(
+            builder: (BuildContext context){
+              return new MyAccount();
+            });
+        Navigator.pop(context);
+        Navigator.of(context).push(route);
+      } else {
+        print('User is signed in!');
+      }
+    });
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat(reverse: true);
     _animation = Tween(begin:0.75, end:1.0).animate(_animationController);
@@ -154,6 +177,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
+  void SignOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return
@@ -206,7 +233,28 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           )),
                     )]
               ),
-            )// This trailing comma makes auto-formatting nicer for build methods.
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top:20),
+              child: Column(
+                  children: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        SignOut();
+                      },
+                      child: Padding(
+                          padding: const EdgeInsets.only(left: 85, right: 85, top:20, bottom:20),
+                          child:Text(
+                            "Sign out",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22.0,
+                            ),
+                          )),
+                    )]
+              ),
+            )
+            // This trailing comma makes auto-formatting nicer for build methods.
           ])
         ))
     );
